@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jibu — Living OS</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🌍 Jibu</div>
+    <div class="score" id="userScore">Score: —</div>
+  </header>
+
+  <main id="app"></main>
+
+  <nav class="bottomnav">
+    <button data-page="home" class="active">🏠<span>Home</span></button>
+    <button data-page="safiri">⚡<span>Safiri</span></button>
+    <button data-page="market">🛒<span>Market</span></button>
+    <button data-page="modules">🧩<span>Modules</span></button>
+  </nav>
+
+  <div id="paymentModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Select Payment Method</h2>
+      <p id="payAmount" style="font-weight:bold; color:#16a34a; font-size:20px; margin-bottom:15px;"></p>
+      <div class="payment-options">
+        <button onclick="processPayment('payfast')">💳 PayFast (ZAR)</button>
+        <button onclick="processPayment('ozow')">🏦 Ozow (Instant EFT)</button>
+        <button onclick="processPayment('peach')">🍑 Peach Payments</button>
+        <button onclick="processPayment('stitch')">🔗 Stitch (Pay by Bank)</button>
+        <button onclick="processPayment('stripe')">🌍 Stripe (Global)</button>
+        <button onclick="processPayment('paypal')">🅿️ PayPal (Global)</button>
+      </div>
+      <button class="close-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,18 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, Header
+ from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
-import uuid
-import stripe
 from typing import Optional
+import os
+import stripe
 
-from config import settings
-from database import engine, Base, get_db, User, Product, Ad
-
-# Create tables
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="Jibu API", version="4.1.0")
+app = FastAPI(title="Jibu API", version="5.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,8 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "sk_test_mock")
+PAYMENTS_ENABLED = os.getenv("ENVIRONMENT", "demo") == "real"
 
+# ================= MODELS =================
 class CheckoutPayload(BaseModel):
     provider: str
     amount: float
@@ -33,72 +28,81 @@ class CheckoutPayload(BaseModel):
     return_url: str
     cancel_url: str
 
-@app.on_event("startup")
-def seed_db():
-    # Seed data if in demo mode
-    if settings.ENVIRONMENT == "demo":
-        db = next(get_db())
-        try:
-            if not db.query(User).first():
-                db.add(User(id="u1", name="Grace Muthoni", phone="+27820001111", location="Cape Town", jibu_score=85, wallet_balance=1500.0, is_admin=True))
-                db.add(Product(id="p1", name="Fresh Organic Tomatoes", description="1kg farm-fresh", price=25.00, image_url="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400", stock=100))
-                db.add(Product(id="p2", name="Handmade Shea Soap", description="3 organic soaps", price=85.00, image_url="https://images.unsplash.com/photo-1607006483225-a6f6b3a4a4a0?w=400", stock=45))
-                db.add(Ad(id="a1", product_id="p1", headline="Morning Freshness", copy="Tomatoes picked at sunrise.", image_url="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400", impressions=1520, clicks=48, conversions=12))
-                db.commit()
-        except Exception as e:
-            print(f"Seed error: {e}")
-        finally:
-            db.close()
+# ================= STATIC DATA (No DB needed) =================
+USERS = [
+    {"id": "u1", "name": "Grace Muthoni", "phone": "+27820001111", "location": "Cape Town", "jibu_score": 85, "wallet_balance": 1500.0}
+]
 
+PRODUCTS = [
+    {"id": "p1", "name": "Fresh Organic Tomatoes", "description": "1kg farm-fresh", "price": 25.00, "image_url": "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400", "stock": 100},
+    {"id": "p2", "name": "Handmade Shea Soap", "description": "3 organic soaps", "price": 85.00, "image_url": "https://images.unsplash.com/photo-1607006483225-a6f6b3a4a4a0?w=400", "stock": 45},
+    {"id": "p3", "name": "Solar USB Charger", "description": "Portable 20W panel", "price": 199.00, "image_url": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400", "stock": 20}
+]
+
+ADS = [
+    {"id": "a1", "product_id": "p1", "headline": "Morning Freshness", "copy": "Tomatoes picked at sunrise.", "image_url": "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400", "impressions": 1520, "clicks": 48, "conversions": 12},
+    {"id": "a2", "product_id": "p2", "headline": "Self-Care Made Local", "copy": "Your skin deserves shea butter.", "image_url": "https://images.unsplash.com/photo-1607006483225-a6f6b3a4a4a0?w=400", "impressions": 2300, "clicks": 92, "conversions": 28}
+]
+
+# ================= ROUTES =================
 @app.get("/")
 def root():
-    return {"status": "ok", "mode": settings.ENVIRONMENT}
+    return {"status": "ok", "mode": "real" if PAYMENTS_ENABLED else "demo"}
 
 @app.get("/stats")
-def stats(db: Session = Depends(get_db)):
-    try:
-        ads = db.query(Ad).all()
-        ti = sum(a.impressions for a in ads)
-        tc = sum(a.clicks for a in ads)
-        tcv = sum(a.conversions for a in ads)
-        return {
-            "users": {"total": db.query(User).count()},
-            "commerce": {"products": db.query(Product).count()},
-            "safiri": {
-                "ads": len(ads), "impressions": ti, "clicks": tc, "conversions": tcv,
-                "click_rate": round(tc / max(ti, 1) * 100, 2),
-                "conversion_rate": round(tcv / max(tc, 1) * 100, 2),
-                "bounce_rate": round((1 - tc / max(ti, 1)) * 100, 2),
-            }
+def stats():
+    ti = sum(a["impressions"] for a in ADS)
+    tc = sum(a["clicks"] for a in ADS)
+    tcv = sum(a["conversions"] for a in ADS)
+    return {
+        "users": {"total": len(USERS)},
+        "commerce": {"products": len(PRODUCTS)},
+        "safiri": {
+            "ads": len(ADS), "impressions": ti, "clicks": tc, "conversions": tcv,
+            "click_rate": round(tc / max(ti, 1) * 100, 2),
+            "conversion_rate": round(tcv / max(tc, 1) * 100, 2),
+            "bounce_rate": round((1 - tc / max(ti, 1)) * 100, 2),
         }
-    except Exception as e:
-        raise HTTPException(500, detail=str(e))
+    }
 
 @app.get("/users/{user_id}")
-def get_user(user_id: str, db: Session = Depends(get_db)):
-    try:
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user: raise HTTPException(404, "User not found")
-        return {"id": user.id, "name": user.name, "jibu_score": user.jibu_score}
-    except Exception as e:
-        raise HTTPException(500, detail=str(e))
+def get_user(user_id: str):
+    for u in USERS:
+        if u["id"] == user_id: return u
+    raise HTTPException(404, "User not found")
 
 @app.get("/products")
-def get_products(db: Session = Depends(get_db)):
-    return db.query(Product).all()
+def get_products():
+    return PRODUCTS
 
 @app.get("/ads")
-def get_ads(db: Session = Depends(get_db)):
-    return db.query(Ad).all()
+def get_ads():
+    return ADS
+
+@app.post("/module/{name}")
+def test_module(name: str):
+    msgs = {
+        "mentor": "AI assessed your math level. Local tutor assigned.",
+        "duka": "Inventory scanned. 3 items low on stock.",
+        "tiba": "Symptoms analyzed. Nurse will call in 10 mins.",
+        "soko": "Matched with 3 local buyers.",
+        "sheria": "Rental contract generated. Paralegal reviewing.",
+        "kazi": "Gig matched: Plumbing help (R150).",
+        "pesa": "Chama group created. Savings tracked.",
+        "mtaa": "Local alert: Traffic on N1."
+    }
+    return {"status": "success", "message": msgs.get(name, "Module tested.")}
 
 @app.post("/checkout")
 async def checkout(req: CheckoutPayload, x_jibu_mode: Optional[str] = Header(None)):
-    if x_jibu_mode != "real" or settings.ENVIRONMENT != "real":
+    # If demo mode, bypass everything
+    if x_jibu_mode != "real" or not PAYMENTS_ENABLED:
         return {"payment_url": "DEMO_BYPASS", "message": "Demo mode: Payment bypassed."}
 
-    provider = req.provider.lower()
-    if provider == "stripe":
+    # Real Payment Logic
+    if req.provider.lower() == "stripe":
         try:
+            stripe.api_key = STRIPE_SECRET_KEY
             session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 line_items=[{"price_data": {"currency": req.currency.lower(), "product_data": {"name": req.item_name}, "unit_amount": int(req.amount * 100)}, "quantity": 1}],
@@ -106,6 +110,7 @@ async def checkout(req: CheckoutPayload, x_jibu_mode: Optional[str] = Header(Non
             )
             return {"payment_url": session.url}
         except Exception as e:
-            raise HTTPException(500, str(e))
+            raise HTTPException(500, f"Stripe Error: {str(e)}")
     
-    return {"payment_url": "https://example.com/mock-payment"}
+    # Mock for PayFast/Ozow if creds aren't set
+    return {"payment_url": f"https://sandbox.payfast.co.za/eng/process?amount={req.amount}"}

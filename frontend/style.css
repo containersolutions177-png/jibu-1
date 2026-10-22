@@ -1,0 +1,97 @@
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f7f8fa; color: #1a1a2e; padding-bottom: 70px;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff; padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.brand { font-size: 20px; font-weight: 700; }
+.score { font-size: 13px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
+
+main { padding: 16px; max-width: 640px; margin: 0 auto; }
+
+.card {
+  background: #fff; border-radius: 14px; padding: 16px;
+  margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+h1 { font-size: 22px; margin-bottom: 4px; }
+h2 { font-size: 17px; margin: 16px 0 10px; color: #16a34a; }
+.subtitle { color: #6b7280; font-size: 13px; margin-bottom: 16px; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat {
+  background: #fff; border-radius: 12px; padding: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.stat .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+.stat.blue .value { color: #2563eb; }
+.stat.green .value { color: #16a34a; }
+.stat.orange .value { color: #ea580c; }
+.stat.red .value { color: #dc2626; }
+
+.metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+.metric-row:last-child { border: none; }
+.metric-row span:last-child { font-weight: 700; }
+
+.ad-card { background: #fff; border-radius: 14px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.ad-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.ad-body { padding: 14px; }
+.ad-headline { font-size: 18px; font-weight: 700; }
+.ad-copy { font-size: 13px; color: #6b7280; margin: 6px 0 12px; }
+.ad-bottom { display: flex; justify-content: space-between; align-items: center; }
+.ad-price { font-size: 20px; font-weight: 700; color: #16a34a; }
+.buy-btn {
+  background: #16a34a; color: #fff; border: none;
+  padding: 10px 24px; border-radius: 24px; font-weight: 600;
+  font-size: 14px; cursor: pointer;
+}
+.buy-btn:active { transform: scale(0.96); }
+.buy-btn:disabled { background: #9ca3af; }
+
+.module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.module-card {
+  background: #fff; border-radius: 12px; padding: 16px;
+  text-align: center; cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border: 2px solid transparent;
+}
+.module-card:active { border-color: #22c55e; }
+.module-icon { font-size: 28px; margin-bottom: 6px; }
+.module-name { font-size: 13px; font-weight: 600; }
+
+.back-btn {
+  background: none; border: none; color: #16a34a;
+  font-size: 15px; padding: 8px 0; cursor: pointer; font-weight: 600;
+}
+
+.chip { display: inline-block; background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 16px; font-size: 12px; margin: 3px; font-weight: 500; }
+
+.loading { text-align: center; padding: 40px; color: #9ca3af; }
+
+.bottomnav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; display: flex; justify-content: space-around;
+  padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  z-index: 100;
+}
+.bottomnav button {
+  background: none; border: none; display: flex; flex-direction: column;
+  align-items: center; font-size: 20px; color: #9ca3af;
+  gap: 2px; cursor: pointer; padding: 4px 12px;
+}
+.bottomnav button span { font-size: 10px; font-weight: 600; }
+.bottomnav button.active { color: #16a34a; }
+
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: #fff; padding: 12px 20px;
+  border-radius: 24px; font-size: 13px; z-index: 200;
+  animation: fadeIn 0.2s;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } }

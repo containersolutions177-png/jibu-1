@@ -1,5 +1,5 @@
 // ⚠️ ENSURE THIS IS YOUR VERCEL BACKEND URL
-const API = "https://jibu-ten.vercel.app"; 
+const API = "https://jibu-frontend-6lcz.vercel.app/"; 
 
 let currentPage = "home";
 let appMode = localStorage.getItem("jibu_mode") || "demo"; 

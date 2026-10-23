@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jibu — Living OS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🌍 Jibu</div>
+    <div class="header-actions">
+      <button id="modeToggle" class="mode-btn" onclick="toggleMode()">DEMO</button>
+      <div class="score" id="userScore">Score: --</div>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Dynamic Content loads here -->
+  </main>
+
+  <nav class="bottomnav">
+    <button data-page="home" class="active" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </button>
+    <button data-page="safiri" onclick="navigate('safiri')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      <span>Campaigns</span>
+    </button>
+    <button data-page="market" onclick="navigate('market')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+      <span>Market</span>
+    </button>
+    <button data-page="modules" onclick="navigate('modules')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Toolkits</span>
+    </button>
+  </nav>
+
+  <div id="paymentModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Checkout</h2>
+      <p id="payAmount" class="pay-amount"></p>
+      <div class="payment-options">
+        <button onclick="processPayment('payfast')">💳 PayFast (ZAR)</button>
+        <button onclick="processPayment('ozow')">🏦 Ozow (Instant EFT)</button>
+        <button onclick="processPayment('stripe')">🌍 Stripe (Global)</button>
+      </div>
+      <button class="close-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+  
+  <div id="moduleModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="modTitle"></h2>
+      <p id="modDesc" class="mod-desc"></p>
+      <button class="test-btn" id="modTestBtn">Run AI Simulation</button>
+      <button class="close-btn" style="margin-top:10px;" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
